@@ -1,0 +1,11 @@
+de.uulm.vs.android.connectionhandler
+de.uulm.vs.android.connectionhandler.bluetooth
+de.uulm.vs.android.connectionhandler.wifip2p
+de.uulm.vs.android.connectionhandler.wifip2p.tasks
+de.uulm.vs.android.crdt.controller
+de.uulm.vs.android.crdt.controller.exchange
+de.uulm.vs.android.crdt.model
+de.uulm.vs.android.crdt.model.counter
+de.uulm.vs.android.crdt.model.set
+de.uulm.vs.android.crdt.model.simple
+de.uulm.vs.android.crdt.util
