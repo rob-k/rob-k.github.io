@@ -6,7 +6,7 @@
 For Gradle, add this dependency to your `build.gradle` in the `dependencies {...}` section:
 
 ```properties
-compile 'de.uulm.vs.android.crdtframework:crdtframework:0.3'
+compile 'de.uulm.vs.android.crdtframework:crdtframework:0.4'
 ```
 
 While the repository is not available in jcenter, you also have to add the Bintray repository to your module by editing your `build.gradle`:
@@ -73,7 +73,7 @@ Add the following lines to your `AndroidManifest.xml` to make your app ask for t
 ``` xml
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="de.uulm.vs.android.fitshare"
+    package="de.uulm.vs.android.crdtsampleapp"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -98,8 +98,11 @@ Add the following lines to your `AndroidManifest.xml` to make your app ask for t
 
 ## 3. Create a CRDTController and ConnectionHandler and hook them up
 
-You can do this in the `onCreate()` method of either one of your `Activity`s or, preferably, in your `Application`.
+You can do this in the `onCreate()` method of either one of your `Activity`s or, preferably, in your `Application`. 
 
+For both the Wi-Fi P2P and the Bluetooth communication modules you will need to create a unique Version 4 UUID in order for the framework to only replicate with other devices running your app (you can simply generate a UUID with tools like [https://www.uuidgenerator.net/](https://www.uuidgenerator.net/)).
+
+Example using the Wi-Fi P2P communication module:
 ```java
 /* The CRDTController instance to handle CRDTs */
 public CRDTController crdtController;
@@ -107,8 +110,9 @@ public CRDTController crdtController;
 /* The connection handler to handle connections with other devices */
 public ExchangeConnectionHandler wifip2pConnectionHandler;
 
-/* A randomly generated UUID for this application */
-private static final String APP_UUID = "45007ff6-f627-44f7-afa1-fe9010ae8a6e";
+/* A randomly generated UUID for this application.
+ * REPLACE THIS with your own UUID! */
+private static final String APP_UUID = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
 
 @Override
 public void onCreate() {
@@ -116,12 +120,12 @@ public void onCreate() {
     if (this.crdtController == null) {
         // Create a new CRDT changeListener to handle the CRDTs
         this.crdtController = new CRDTController(this);
-        crdtController.enableToasts(true);
     }
 
     if (this.wifip2pConnectionHandler == null) {
         // Create a new WiFiDirectBroadcastReceiver to handle WiFiP2P connections
-        this.wifip2pConnectionHandler = new WiFiDirectBroadcastReceiver(this, APP_UUID, crdtController.getClientId(),
+        this.wifip2pConnectionHandler = new WiFiDirectBroadcastReceiver(this, 
+                APP_UUID, crdtController.getClientId(),
                 this.crdtController);
         crdtController.addConnectionHandler(wifip2pConnectionHandler);
     }
@@ -135,7 +139,7 @@ public void onCreate() {
 
 ## 4. Make the App register and unregister the BroadcastReceivers and save the data of the CRDT-Framework to the device storage
 
-This should be done in the `onResume()` and `onPause()` methods of your `Activity`s. It is recommended to outsource this code in a a method that will be called in all activities if you have more than one activity.
+This should be done in the `onResume()` and `onPause()` methods of your `Activity`s. It is recommended to outsource this code to a method that will be called in all activities (e.g. once again, in your `Application`), if you have more than one activity .
 
 ```java
 /**
@@ -148,8 +152,10 @@ public void onResume() {
 }
 
 /**
- * Unregisters the broadcast receivers and makes the CRDTController save its data to the device storage.
- * Can be called by activities as default implementation for {@link android.app.Activity#onPause()}.
+ * Unregisters the broadcast receivers and makes the CRDTController 
+ * save its data to the device storage.
+ * Can be called by activities as default implementation for 
+ * {@link android.app.Activity#onPause()}.
  */
 public void onPause() {
     crdtController.unregisterReceivers();
@@ -161,24 +167,31 @@ public void onPause() {
 
 ## 5. Get a CRDT-Instance
 
-To get instances of new CRDTs call the `newXXXCRDT(id, ...)` methods of your `CRDT-Controller` instance. The `id` is a `String` that functions as identifier for the instance.
+To get instances of new CRDTs call the `newXXXCRDT(id, ...)` methods of your `CRDT-Controller` instance. The `id` is a `String` that is used as identifier for the instance. Additional parameters are mostly default
 
-To get back instances that have been created previously (for example in another activity or previous to an application shutdown), call `getCRDT(id)`.
+Call `getCRDT(id)` to get instances back that have been created previously.
 
-### Example:
+Possible use cases:
+
+- access instances created in another activity
+- access instances created in an ealier session (that have ben persisted by the framework)
+- access instances that were created by another client (and replicated by the framework)
+
+### Example
+You will often want to check if the CRDT with an specific identifier has already been created before creating a new instance, as shown in the example below:
 ```java
 ...
-private final String COUNTER_CRDT = "counterCRDT";
-private CounterCRDT counterCRDT;
+private final String COUNTER_CRDT = "myCounterCRDT";
+private CounterCRDT myCounterCRDT;
 
 @Override
 protected void onCreate(Bundle savedInstanceState) {
 
     ...
 
-    if ((counterCRDT = (CounterCRDT) crdtController
+    if ((myCounterCRDT = (CounterCRDT) crdtController
             .getCRDT(COUNTER_CRDT)) == null) {
-        counterCRDT = crdtController.newCounterCRDT(COUNTER_CRDT, 0);
+        myCounterCRDT = crdtController.newCounterCRDT(COUNTER_CRDT, 0);
     }
 
     ...
@@ -191,19 +204,23 @@ protected void onCreate(Bundle savedInstanceState) {
 
 ### Start discovery
 
-Discovery of other devices (for all registered connection handlers) can be be initiated manually by calling `startDiscovery()`, or automatically every X seconds by using `startScheduledDiscovery(X)` after the controller has been initiated.
+Discovery of other devices (for all registered connection handlers) can be be initiated manually by calling `startDiscovery()`, or automatically every X seconds by using `startScheduledDiscovery(X)`. You usually want to do this right after the controller has been initiated.
 
 ### Commit changes
 
-Changes from other devices will be received on contact. However, if a connection to one or more devices is already existent, your changes can be commited to be sent over this connection immediately with `commitChanges()`. This will attempt to push on all registered connection handlers.
+Changes from other devices will be received on contact. However, if a connection to one or more devices is already existent, your changes can be commited to be sent over this connection immediately with `commitChanges()`. This will result in an attempt to push on all registered connection handlers. In most cases you will want to call this method after every significant change to your CRDTs.
 
 ### Receive notifications
 
-You can add one or more listeners in order to receive notifcations about changes to the framework. This listeners must implement the `CRDTNotificationReceiver` interface and can be added with `crdtController.addListener(listener);`. Notifications include successful merges, replication start and end, as well as errors. Additionally, information about available peers for both Bluetooth and Wi-Fi P2P and the respective states of these frameworks can be received.
+You can register one or more listeners in order to receive notifcations about changes to the framework. This listeners must implement the `CRDTNotificationReceiver` interface and can be added with `addListener(listener);`. 
+
+Notifications include successful merges, replication start and end, as well as errors. The most important interface method is `mergeCompleted()`, which signals that an update from another devices has been received and was successfully merged, which enables you to update the UI accordingly.
+
+Additionally, information about available peers for both Bluetooth and Wi-Fi P2P and the respective states of these frameworks can be received.
 
 ### Transactions
 
-You can group a set of changes to your CRDTs or simply delay the merge of received and local changes by using a transaction.
+You can group a set of changes to your CRDTs or simply delay the merge of received and local changes by using a transaction. This can also be used if two or more CRDTs semantically belong together and should never be replicated seperately.
 
 #### Start a transaction
 
@@ -211,9 +228,37 @@ Call the `beginTransaction()` method of your `CRDT-Controller` instance. After t
 
 #### Rollback the transaction
 
-Call `rollbackTransaction()` if you want to revert all changes that have been made within the transaction. All queued changes will be merged now.
+Call `rollbackTransaction()` if you want to revert all changes that have been made within the current transaction. All queued changes will be merged now.
 
 #### Commit the transaction
-Call `commitTransaction()` to finish a transaction. This will automatically call `commitChanges()` and all queued changes will be merged.
+Call `commitTransaction()` to finish the transaction. This will automatically call `commitChanges()` and all queued changes will be merged.
+
+## 7. Common Data Types
+
+### Counter 
+
+A `CounterCRDT` is basically a number that can be incremented by 1 using `increment()` or by n using `increment(n)`, decrementation respectively.
+
+### VectorClock
+
+A `VectorClockCRDT` is a modified counter that is interpreted as integer vector and can be compared with other instances regarding their causal order (`EQUAL`, `AFTER`, `BEFORE` or `CONCURRENT`). The value of a specific client can be accessed with `getTimestamp(clientId)`.
+
+### Voter
+
+A `VoterCRDT` is another modified counter that can be used to represent up- and downvotes on a matter. Every client can upvote (`upvote()`) or downvote (`downvote()`), but they can only vote once (i.e. they can modify the counter by `+-1`). Subsequent upvote/downvote calls will result in a 'revoke' of the vote (e.g. calling `upvote()` twice by the same client will result in the counter changing by `+-0`).
+
+### Set
+
+The `LWWSetCRDT<T>` is a set that supports `add(object)` and `remove(object)` operations. It implements the LWW (last write wins) strategy by utilizing vector clocks.
+
+### Maximum
+
+The `MaximumCRDT` is a simple maximum implementation that holds an integer number and supports a `setMaximum(int)` method, which will max out the current and the new int.
+
+### What should I do if I need a data type that is not covered by an existing implementation?
+
+You can combine existing implementations by using one or more `CRDTMapCRDT`s while using the same keys.
+
+You can also write your own CRDT implementation by implementing the `SimpleCRDT` interface and adding your instance(s) with `handleSimpleCRDTs(simpleCrdts)`. Make sure to provide a proper `merge(other)` implementation. 
 
 
