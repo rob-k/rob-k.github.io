@@ -2,6 +2,8 @@
 
 ## 1. Include the Framework
 
+You can use Gradle or Maven to include the framework in your app.
+
 ### Gradle
 For Gradle, add this dependency to your `build.gradle` in the `dependencies {...}` section:
 
