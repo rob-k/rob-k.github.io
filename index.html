@@ -199,13 +199,13 @@
 
 <p>To get instances of new CRDTs call the <code>newXXXCRDT(id, ...)</code> methods of your <code>CRDT-Controller</code> instance. The <code>id</code> is a <code>String</code> that is used as identifier for the instance. Additional parameters are mostly default values.</p>
 
-<p>Call <code>getCRDT(id)</code> to get instances back that have been created previously.</p>
+<p>Call <code>getCRDT(id)</code> to access instances that have been created previously.</p>
 
 <p>Possible use cases:</p>
 
 <ul>
 <li>access instances created in another activity</li>
-<li>access instances created in an ealier session (that have been persisted by the framework)</li>
+<li>access instances created in an earlier session (that have been persisted by the framework)</li>
 <li>access instances that were created by another client (and replicated by the framework)</li>
 </ul>
 
