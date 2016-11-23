@@ -288,7 +288,7 @@
 <h3>
 <a id="voter" class="anchor" href="#voter" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voter</h3>
 
-<p>A <code>VoterCRDT</code> is another modified counter that can be used to represent up- and downvotes on a matter. Every client can upvote (<code>upvote()</code>) or downvote (<code>downvote()</code>), but they can only vote once (i.e. they can modify the counter by <code>+-1</code>). Subsequent upvote/downvote calls will result in a 'revoke' of the vote (e.g. calling <code>upvote()</code> twice by the same client will result in the counter changing by <code>+-0</code>).</p>
+<p>A <code>VoterCRDT</code> is another modified counter that can be used to represent up- and downvotes on a matter. Every client can upvote (<code>upvote()</code>) or downvote (<code>downvote()</code>), but they can only vote once (i.e. they can modify the counter by <code>+-1</code>). Subsequent upvote/downvote calls will result in a 'revoke' of the vote (e.g. calling <code>upvote()</code> twice by the same client will result in the counter changing by <code>+-0</code>). To get the voted value of the current client, you can call <code>getVotedValue()</code>.</p>
 
 <h3>
 <a id="set" class="anchor" href="#set" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Set</h3>
@@ -303,7 +303,7 @@
 <h3>
 <a id="what-should-i-do-if-i-need-a-data-type-that-is-not-covered-by-an-existing-implementation" class="anchor" href="#what-should-i-do-if-i-need-a-data-type-that-is-not-covered-by-an-existing-implementation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What should I do if I need a data type that is not covered by an existing implementation?</h3>
 
-<p>You can combine existing implementations by using one or more <code>CRDTMapCRDT</code>s while using the same keys.</p>
+<p>You can combine existing implementations by using one or more <code>CRDTMapCRDT&lt;K,V&gt;</code>s (K can by any Object while V must be a CRDT), using the same keys.</p>
 
 <p>You can also write your own CRDT implementation by implementing the <code>SimpleCRDT</code> interface and adding your instance(s) with <code>handleSimpleCRDTs(simpleCrdts)</code>. Make sure to provide a proper <code>merge(other)</code> implementation. </p>
       </section>
