@@ -247,17 +247,21 @@ A `VectorClockCRDT` is a modified counter that is interpreted as integer vector 
 
 A `VoterCRDT` is another modified counter that can be used to represent up- and downvotes on a matter. Every client can upvote (`upvote()`) or downvote (`downvote()`), but they can only vote once (i.e. they can modify the counter by `+-1`). Subsequent upvote/downvote calls will result in a 'revoke' of the vote (e.g. calling `upvote()` twice by the same client will result in the counter changing by `+-0`). To get the voted value of the current client, you can call `getVotedValue()`.
 
-### Set
-
-The `LWWSetCRDT<T>` is a set that supports `add(object)` and `remove(object)` operations. It implements the LWW (last write wins) strategy by utilizing vector clocks.
-
 ### Maximum
 
 The `MaximumCRDT` is a simple maximum implementation that holds an integer number and supports a `setMaximum(int)` method, which will max out the current and the new int.
 
+### Set
+
+The `LWWSetCRDT<T>` is a set that supports `add(object)` and `remove(object)` operations. It implements the LWW (last write wins) strategy by utilizing vector clocks.
+
+### CRDTMap
+
+The `CRDTMapCRDT<K,V>` is a map implementation. K can by of any Object type while V must be a CRDT. This is useful if you want to store an unknown or dynamic amount of CRDTs, since they all will be merged (assuming they have the same id).
+
 ### What should I do if I need a data type that is not covered by an existing implementation?
 
-You can combine existing implementations by using one or more `CRDTMapCRDT<K,V>`s (K can by any Object while V must be a CRDT), using the same keys.
+You can combine existing implementations by using one or more `CRDTMapCRDT`s while using the same keys.
 
 You can also write your own CRDT implementation by implementing the `SimpleCRDT` interface and adding your instance(s) with `handleSimpleCRDTs(simpleCrdts)`. Make sure to provide a proper `merge(other)` implementation. 
 
