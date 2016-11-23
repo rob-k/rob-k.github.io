@@ -245,7 +245,7 @@ A `VectorClockCRDT` is a modified counter that is interpreted as integer vector 
 
 ### Voter
 
-A `VoterCRDT` is another modified counter that can be used to represent up- and downvotes on a matter. Every client can upvote (`upvote()`) or downvote (`downvote()`), but they can only vote once (i.e. they can modify the counter by `+-1`). Subsequent upvote/downvote calls will result in a 'revoke' of the vote (e.g. calling `upvote()` twice by the same client will result in the counter changing by `+-0`).
+A `VoterCRDT` is another modified counter that can be used to represent up- and downvotes on a matter. Every client can upvote (`upvote()`) or downvote (`downvote()`), but they can only vote once (i.e. they can modify the counter by `+-1`). Subsequent upvote/downvote calls will result in a 'revoke' of the vote (e.g. calling `upvote()` twice by the same client will result in the counter changing by `+-0`). To get the voted value of the current client, you can call `getVotedValue()`.
 
 ### Set
 
@@ -257,7 +257,7 @@ The `MaximumCRDT` is a simple maximum implementation that holds an integer numbe
 
 ### What should I do if I need a data type that is not covered by an existing implementation?
 
-You can combine existing implementations by using one or more `CRDTMapCRDT`s while using the same keys.
+You can combine existing implementations by using one or more `CRDTMapCRDT<K,V>`s (K can by any Object while V must be a CRDT), using the same keys.
 
 You can also write your own CRDT implementation by implementing the `SimpleCRDT` interface and adding your instance(s) with `handleSimpleCRDTs(simpleCrdts)`. Make sure to provide a proper `merge(other)` implementation. 
 
