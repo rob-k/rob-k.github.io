@@ -171,12 +171,12 @@ public void onPause() {
 
 To get instances of new CRDTs call the `newXXXCRDT(id, ...)` methods of your `CRDT-Controller` instance. The `id` is a `String` that is used as identifier for the instance. Additional parameters are mostly default values.
 
-Call `getCRDT(id)` to get instances back that have been created previously.
+Call `getCRDT(id)` to access instances that have been created previously.
 
 Possible use cases:
 
 - access instances created in another activity
-- access instances created in an ealier session (that have been persisted by the framework)
+- access instances created in an earlier session (that have been persisted by the framework)
 - access instances that were created by another client (and replicated by the framework)
 
 ### Example
