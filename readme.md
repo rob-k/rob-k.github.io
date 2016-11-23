@@ -235,6 +235,8 @@ Call `commitTransaction()` to finish the transaction. This will automatically ca
 
 ## 7. Common Data Types
 
+All data types in this framework inherit from the `CRDT` interface. This interface includes a method `getValue()` that returns the represented value of the CRDT (e.g. an Integer, a Set etc.).
+
 ### Counter 
 
 A `CounterCRDT` is basically a number that can be incremented by 1 using `increment()` or by n using `increment(n)`, decrementation respectively.
