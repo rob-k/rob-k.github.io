@@ -30,6 +30,8 @@
         <h1>
 <a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Getting Started</h1>
 
+<p>Also see the <a href="/javadoc">JavaDoc</a>.</p>
+
 <h2>
 <a id="1-include-the-framework" class="anchor" href="#1-include-the-framework" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>1. Include the Framework</h2>
 
@@ -38,7 +40,7 @@
 
 <p>For Gradle, add this dependency to your <code>build.gradle</code> in the <code>dependencies {...}</code> section:</p>
 
-<div class="highlight highlight-source-ini"><pre>compile <span class="pl-s"><span class="pl-pds">'</span>de.uulm.vs.android.crdtframework:crdtframework:0.3<span class="pl-pds">'</span></span></pre></div>
+<div class="highlight highlight-source-ini"><pre>compile <span class="pl-s"><span class="pl-pds">'</span>de.uulm.vs.android.crdtframework:crdtframework:0.4<span class="pl-pds">'</span></span></pre></div>
 
 <p>While the repository is not available in jcenter, you also have to add the Bintray repository to your module by editing your <code>build.gradle</code>:</p>
 
@@ -101,7 +103,7 @@
 
 <div class="highlight highlight-text-xml"><pre>&lt;?<span class="pl-ent">xml</span><span class="pl-e"> version</span>=<span class="pl-s"><span class="pl-pds">"</span>1.0<span class="pl-pds">"</span></span><span class="pl-e"> encoding</span>=<span class="pl-s"><span class="pl-pds">"</span>utf-8<span class="pl-pds">"</span></span>?&gt;
 &lt;<span class="pl-ent">manifest</span> <span class="pl-e">xmlns</span><span class="pl-e">:</span><span class="pl-e">android</span>=<span class="pl-s"><span class="pl-pds">"</span>http://schemas.android.com/apk/res/android<span class="pl-pds">"</span></span>
-    <span class="pl-e">package</span>=<span class="pl-s"><span class="pl-pds">"</span>de.uulm.vs.android.fitshare<span class="pl-pds">"</span></span>
+    <span class="pl-e">package</span>=<span class="pl-s"><span class="pl-pds">"</span>de.uulm.vs.android.crdtsampleapp<span class="pl-pds">"</span></span>
     <span class="pl-e">android</span><span class="pl-e">:</span><span class="pl-e">versionCode</span>=<span class="pl-s"><span class="pl-pds">"</span>1<span class="pl-pds">"</span></span>
     <span class="pl-e">android</span><span class="pl-e">:</span><span class="pl-e">versionName</span>=<span class="pl-s"><span class="pl-pds">"</span>1.0<span class="pl-pds">"</span></span> &gt;
 
@@ -125,7 +127,11 @@
 <h2>
 <a id="3-create-a-crdtcontroller-and-connectionhandler-and-hook-them-up" class="anchor" href="#3-create-a-crdtcontroller-and-connectionhandler-and-hook-them-up" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>3. Create a CRDTController and ConnectionHandler and hook them up</h2>
 
-<p>You can do this in the <code>onCreate()</code> method of either one of your <code>Activity</code>s or, preferably, in your <code>Application</code>.</p>
+<p>You can do this in the <code>onCreate()</code> method of either one of your <code>Activity</code>s or, preferably, in your <code>Application</code>. </p>
+
+<p>For both the Wi-Fi P2P and the Bluetooth communication modules you will need to create a unique Version 4 UUID in order for the framework to only replicate with other devices running your app (you can simply generate a UUID with tools like <a href="https://www.uuidgenerator.net/">https://www.uuidgenerator.net/</a>).</p>
+
+<p>Example using the Wi-Fi P2P communication module:</p>
 
 <div class="highlight highlight-source-java"><pre><span class="pl-c">/* The CRDTController instance to handle CRDTs */</span>
 <span class="pl-k">public</span> <span class="pl-smi">CRDTController</span> crdtController;
@@ -133,8 +139,9 @@
 <span class="pl-c">/* The connection handler to handle connections with other devices */</span>
 <span class="pl-k">public</span> <span class="pl-smi">ExchangeConnectionHandler</span> wifip2pConnectionHandler;
 
-<span class="pl-c">/* A randomly generated UUID for this application */</span>
-<span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-c1">APP_UUID</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>45007ff6-f627-44f7-afa1-fe9010ae8a6e<span class="pl-pds">"</span></span>;
+<span class="pl-c">/* A randomly generated UUID for this application.</span>
+<span class="pl-c"> * REPLACE THIS with your own UUID! */</span>
+<span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-c1">APP_UUID</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx<span class="pl-pds">"</span></span>;
 
 <span class="pl-k">@Override</span>
 <span class="pl-k">public</span> <span class="pl-k">void</span> onCreate() {
@@ -142,12 +149,12 @@
     <span class="pl-k">if</span> (<span class="pl-v">this</span><span class="pl-k">.</span>crdtController <span class="pl-k">==</span> <span class="pl-c1">null</span>) {
         <span class="pl-c">// Create a new CRDT changeListener to handle the CRDTs</span>
         <span class="pl-v">this</span><span class="pl-k">.</span>crdtController <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">CRDTController</span>(<span class="pl-v">this</span>);
-        crdtController<span class="pl-k">.</span>enableToasts(<span class="pl-c1">true</span>);
     }
 
     <span class="pl-k">if</span> (<span class="pl-v">this</span><span class="pl-k">.</span>wifip2pConnectionHandler <span class="pl-k">==</span> <span class="pl-c1">null</span>) {
         <span class="pl-c">// Create a new WiFiDirectBroadcastReceiver to handle WiFiP2P connections</span>
-        <span class="pl-v">this</span><span class="pl-k">.</span>wifip2pConnectionHandler <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">WiFiDirectBroadcastReceiver</span>(<span class="pl-v">this</span>, <span class="pl-c1">APP_UUID</span>, crdtController<span class="pl-k">.</span>getClientId(),
+        <span class="pl-v">this</span><span class="pl-k">.</span>wifip2pConnectionHandler <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">WiFiDirectBroadcastReceiver</span>(<span class="pl-v">this</span>, 
+                <span class="pl-c1">APP_UUID</span>, crdtController<span class="pl-k">.</span>getClientId(),
                 <span class="pl-v">this</span><span class="pl-k">.</span>crdtController);
         crdtController<span class="pl-k">.</span>addConnectionHandler(wifip2pConnectionHandler);
     }
@@ -161,7 +168,7 @@
 <h2>
 <a id="4-make-the-app-register-and-unregister-the-broadcastreceivers-and-save-the-data-of-the-crdt-framework-to-the-device-storage" class="anchor" href="#4-make-the-app-register-and-unregister-the-broadcastreceivers-and-save-the-data-of-the-crdt-framework-to-the-device-storage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>4. Make the App register and unregister the BroadcastReceivers and save the data of the CRDT-Framework to the device storage</h2>
 
-<p>This should be done in the <code>onResume()</code> and <code>onPause()</code> methods of your <code>Activity</code>s. It is recommended to outsource this code in a a method that will be called in all activities if you have more than one activity.</p>
+<p>This should be done in the <code>onResume()</code> and <code>onPause()</code> methods of your <code>Activity</code>s. It is recommended to outsource this code to a method that will be called in all activities (e.g. once again, in your <code>Application</code>), if you have more than one activity .</p>
 
 <div class="highlight highlight-source-java"><pre><span class="pl-c">/**</span>
 <span class="pl-c"> * Registers the broadcast receivers with the intent values to be matched.</span>
@@ -173,8 +180,10 @@
 }
 
 <span class="pl-c">/**</span>
-<span class="pl-c"> * Unregisters the broadcast receivers and makes the CRDTController save its data to the device storage.</span>
-<span class="pl-c"> * Can be called by activities as default implementation for {@link android.app.Activity#onPause()}.</span>
+<span class="pl-c"> * Unregisters the broadcast receivers and makes the CRDTController </span>
+<span class="pl-c"> * save its data to the device storage.</span>
+<span class="pl-c"> * Can be called by activities as default implementation for </span>
+<span class="pl-c"> * {@link android.app.Activity#onPause()}.</span>
 <span class="pl-c"> */</span>
 <span class="pl-k">public</span> <span class="pl-k">void</span> onPause() {
     crdtController<span class="pl-k">.</span>unregisterReceivers();
@@ -186,25 +195,35 @@
 <h2>
 <a id="5-get-a-crdt-instance" class="anchor" href="#5-get-a-crdt-instance" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>5. Get a CRDT-Instance</h2>
 
-<p>To get instances of new CRDTs call the <code>newXXXCRDT(id, ...)</code> methods of your <code>CRDT-Controller</code> instance. The <code>id</code> is a <code>String</code> that functions as identifier for the instance.</p>
+<p>To get instances of new CRDTs call the <code>newXXXCRDT(id, ...)</code> methods of your <code>CRDT-Controller</code> instance. The <code>id</code> is a <code>String</code> that is used as identifier for the instance. Additional parameters are mostly default</p>
 
-<p>To get back instances that have been created previously (for example in another activity or previous to an application shutdown), call <code>getCRDT(id)</code>.</p>
+<p>Call <code>getCRDT(id)</code> to get instances back that have been created previously.</p>
+
+<p>Possible use cases:</p>
+
+<ul>
+<li>access instances created in another activity</li>
+<li>access instances created in an ealier session (that have ben persisted by the framework)</li>
+<li>access instances that were created by another client (and replicated by the framework)</li>
+</ul>
 
 <h3>
-<a id="example" class="anchor" href="#example" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example:</h3>
+<a id="example" class="anchor" href="#example" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example</h3>
+
+<p>You will often want to check if the CRDT with an specific identifier has already been created before creating a new instance, as shown in the example below:</p>
 
 <div class="highlight highlight-source-java"><pre><span class="pl-c1">...</span>
-<span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-c1">COUNTER_CRDT</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>counterCRDT<span class="pl-pds">"</span></span>;
-<span class="pl-k">private</span> <span class="pl-smi">CounterCRDT</span> counterCRDT;
+<span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-c1">COUNTER_CRDT</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>myCounterCRDT<span class="pl-pds">"</span></span>;
+<span class="pl-k">private</span> <span class="pl-smi">CounterCRDT</span> myCounterCRDT;
 
 <span class="pl-k">@Override</span>
 <span class="pl-k">protected</span> <span class="pl-k">void</span> onCreate(<span class="pl-smi">Bundle</span> savedInstanceState) {
 
     <span class="pl-c1">...</span>
 
-    <span class="pl-k">if</span> ((counterCRDT <span class="pl-k">=</span> (<span class="pl-smi">CounterCRDT</span>) crdtController
+    <span class="pl-k">if</span> ((myCounterCRDT <span class="pl-k">=</span> (<span class="pl-smi">CounterCRDT</span>) crdtController
             .getCRDT(<span class="pl-c1">COUNTER_CRDT</span>)) <span class="pl-k">==</span> <span class="pl-c1">null</span>) {
-        counterCRDT <span class="pl-k">=</span> crdtController<span class="pl-k">.</span>newCounterCRDT(<span class="pl-c1">COUNTER_CRDT</span>, <span class="pl-c1">0</span>);
+        myCounterCRDT <span class="pl-k">=</span> crdtController<span class="pl-k">.</span>newCounterCRDT(<span class="pl-c1">COUNTER_CRDT</span>, <span class="pl-c1">0</span>);
     }
 
     <span class="pl-c1">...</span>
@@ -217,22 +236,26 @@
 <h3>
 <a id="start-discovery" class="anchor" href="#start-discovery" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Start discovery</h3>
 
-<p>Discovery of other devices (for all registered connection handlers) can be be initiated manually by calling <code>startDiscovery()</code>, or automatically every X seconds by using <code>startScheduledDiscovery(X)</code> after the controller has been initiated.</p>
+<p>Discovery of other devices (for all registered connection handlers) can be be initiated manually by calling <code>startDiscovery()</code>, or automatically every X seconds by using <code>startScheduledDiscovery(X)</code>. You usually want to do this right after the controller has been initiated.</p>
 
 <h3>
 <a id="commit-changes" class="anchor" href="#commit-changes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Commit changes</h3>
 
-<p>Changes from other devices will be received on contact. However, if a connection to one or more devices is already existent, your changes can be commited to be sent over this connection immediately with <code>commitChanges()</code>. This will attempt to push on all registered connection handlers.</p>
+<p>Changes from other devices will be received on contact. However, if a connection to one or more devices is already existent, your changes can be commited to be sent over this connection immediately with <code>commitChanges()</code>. This will result in an attempt to push on all registered connection handlers. In most cases you will want to call this method after every significant change to your CRDTs.</p>
 
 <h3>
 <a id="receive-notifications" class="anchor" href="#receive-notifications" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Receive notifications</h3>
 
-<p>You can add one or more listeners in order to receive notifcations about changes to the framework. This listeners must implement the <code>CRDTNotificationReceiver</code> interface and can be added with <code>crdtController.addListener(listener);</code>. Notifications include successful merges, replication start and end, as well as errors. Additionally, information about available peers for both Bluetooth and Wi-Fi P2P and the respective states of these frameworks can be received.</p>
+<p>You can register one or more listeners in order to receive notifcations about changes to the framework. This listeners must implement the <code>CRDTNotificationReceiver</code> interface and can be added with <code>addListener(listener);</code>. </p>
+
+<p>Notifications include successful merges, replication start and end, as well as errors. The most important interface method is <code>mergeCompleted()</code>, which signals that an update from another devices has been received and was successfully merged, which enables you to update the UI accordingly.</p>
+
+<p>Additionally, information about available peers for both Bluetooth and Wi-Fi P2P and the respective states of these frameworks can be received.</p>
 
 <h3>
 <a id="transactions" class="anchor" href="#transactions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Transactions</h3>
 
-<p>You can group a set of changes to your CRDTs or simply delay the merge of received and local changes by using a transaction.</p>
+<p>You can group a set of changes to your CRDTs or simply delay the merge of received and local changes by using a transaction. This can also be used if two or more CRDTs semantically belong together and should never be replicated seperately.</p>
 
 <h4>
 <a id="start-a-transaction" class="anchor" href="#start-a-transaction" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Start a transaction</h4>
@@ -242,17 +265,47 @@
 <h4>
 <a id="rollback-the-transaction" class="anchor" href="#rollback-the-transaction" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Rollback the transaction</h4>
 
-<p>Call <code>rollbackTransaction()</code> if you want to revert all changes that have been made within the transaction. All queued changes will be merged now.</p>
+<p>Call <code>rollbackTransaction()</code> if you want to revert all changes that have been made within the current transaction. All queued changes will be merged now.</p>
 
 <h4>
 <a id="commit-the-transaction" class="anchor" href="#commit-the-transaction" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Commit the transaction</h4>
 
-<p>Call <code>commitTransaction()</code> to finish a transaction. This will automatically call <code>commitChanges()</code> and all queued changes will be merged.</p>
+<p>Call <code>commitTransaction()</code> to finish the transaction. This will automatically call <code>commitChanges()</code> and all queued changes will be merged.</p>
 
 <h2>
-<a id="javadoc" class="anchor" href="#javadoc" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>JavaDoc</h2>
+<a id="7-common-data-types" class="anchor" href="#7-common-data-types" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>7. Common Data Types</h2>
 
-<p><a href="/javadoc">javadoc</a></p>
+<h3>
+<a id="counter" class="anchor" href="#counter" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Counter</h3>
+
+<p>A <code>CounterCRDT</code> is basically a number that can be incremented by 1 using <code>increment()</code> or by n using <code>increment(n)</code>, decrementation respectively.</p>
+
+<h3>
+<a id="vectorclock" class="anchor" href="#vectorclock" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>VectorClock</h3>
+
+<p>A <code>VectorClockCRDT</code> is a modified counter that is interpreted as integer vector and can be compared with other instances regarding their causal order (<code>EQUAL</code>, <code>AFTER</code>, <code>BEFORE</code> or <code>CONCURRENT</code>). The value of a specific client can be accessed with <code>getTimestamp(clientId)</code>.</p>
+
+<h3>
+<a id="voter" class="anchor" href="#voter" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voter</h3>
+
+<p>A <code>VoterCRDT</code> is another modified counter that can be used to represent up- and downvotes on a matter. Every client can upvote (<code>upvote()</code>) or downvote (<code>downvote()</code>), but they can only vote once (i.e. they can modify the counter by <code>+-1</code>). Subsequent upvote/downvote calls will result in a 'revoke' of the vote (e.g. calling <code>upvote()</code> twice by the same client will result in the counter changing by <code>+-0</code>).</p>
+
+<h3>
+<a id="set" class="anchor" href="#set" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Set</h3>
+
+<p>The <code>LWWSetCRDT&lt;T&gt;</code> is a set that supports <code>add(object)</code> and <code>remove(object)</code> operations. It implements the LWW (last write wins) strategy by utilizing vector clocks.</p>
+
+<h3>
+<a id="maximum" class="anchor" href="#maximum" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Maximum</h3>
+
+<p>The <code>MaximumCRDT</code> is a simple maximum implementation that holds an integer number and supports a <code>setMaximum(int)</code> method, which will max out the current and the new int.</p>
+
+<h3>
+<a id="what-should-i-do-if-i-need-a-data-type-that-is-not-covered-by-an-existing-implementation" class="anchor" href="#what-should-i-do-if-i-need-a-data-type-that-is-not-covered-by-an-existing-implementation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What should I do if I need a data type that is not covered by an existing implementation?</h3>
+
+<p>You can combine existing implementations by using one or more <code>CRDTMapCRDT</code>s while using the same keys.</p>
+
+<p>You can also write your own CRDT implementation by implementing the <code>SimpleCRDT</code> interface and adding your instance(s) with <code>handleSimpleCRDTs(simpleCrdts)</code>. Make sure to provide a proper <code>merge(other)</code> implementation. </p>
       </section>
     </div>
 
